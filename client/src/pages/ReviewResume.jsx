@@ -255,13 +255,25 @@ const ReviewResume = () => {
       formData.append("resume", file);
 
       const token = await getToken(); // Clerk auth token
-      const res = await axios.post("/api/ai/review-resume", formData, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+
+      // const res = await axios.post("/api/ai/review-resume", formData, {
+      //   withCredentials: true,
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      // });
+
+      const res = await axios.post(
+        "/api/ai/image/review-resume",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!res.data.success) {
         throw new Error(res.data.message || "Analysis failed");
