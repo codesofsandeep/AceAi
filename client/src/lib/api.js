@@ -1,11 +1,8 @@
-// src/lib/api.js
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: import.meta.env.DEV
-        ? "/api" // Dev proxy (Vite)
-        : `${window.location.origin}/api`, // Production on Vercel
-    withCredentials: true,
+  baseURL: "/api", // This works with Vite proxy in dev
+  withCredentials: true, // needed if your backend requires cookies
 });
 
 export default api;

@@ -7,9 +7,10 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:3000",
+        // target: "http://localhost:3000",
+        target: "https://aceai-jnm9.onrender.com",
         changeOrigin: true,
-        secure: false,
+        secure: true,
       },
     },
   },
