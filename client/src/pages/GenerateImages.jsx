@@ -30,14 +30,20 @@ const GenerateImages = () => {
 
     try {
       const token = await getToken();
+      // const { data } = await axios.post(
+      //   "/api/ai/generate-image",
+      //   { prompt, style, ratio, plan: "premium" }, // send user's plan
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
+
       const { data } = await axios.post(
         "/api/ai/generate-image",
-        { prompt, style, ratio, plan: "premium" }, // send user's plan
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { prompt, length: length.toLowerCase() },
+        { headers: { Authorization: `Bearer ${await getToken()}` } }
       );
 
       if (data.success) {

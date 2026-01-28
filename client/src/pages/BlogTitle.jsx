@@ -28,14 +28,20 @@ const BlogTitle = () => {
 
     try {
       const token = await getToken();
+      // const { data } = await axios.post(
+      //   "/api/ai/generate-blog-title",
+      //   { prompt: topic, tone },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
+
       const { data } = await axios.post(
         "/api/ai/generate-blog-title",
-        { prompt: topic, tone },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { prompt, length: length.toLowerCase() },
+        { headers: { Authorization: `Bearer ${await getToken()}` } }
       );
 
       if (data.success) {

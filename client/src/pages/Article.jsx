@@ -68,17 +68,23 @@ const Article = () => {
 
       const prompt = `Write a ${tone.toLowerCase()} article about "${topic}"`;
 
+      // const { data } = await axios.post(
+      //   "/api/ai/generate-article",
+      //   {
+      //     prompt,
+      //     length: length.toLowerCase(),
+      //   },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${await getToken()}`,
+      //     },
+      //   }
+      // );
+
       const { data } = await axios.post(
         "/api/ai/generate-article",
-        {
-          prompt,
-          length: length.toLowerCase(),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${await getToken()}`,
-          },
-        }
+        { prompt, length: length.toLowerCase() },
+        { headers: { Authorization: `Bearer ${await getToken()}` } }
       );
 
       if (data.success) {

@@ -5,10 +5,13 @@ import React, { useState } from "react";
 import { ImageMinus, Upload, Download, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useAuth } from "@clerk/clerk-react";
+
+
 
 const api = axios.create({
-baseURL: "/api", // Vite proxy handles http://localhost:3000
-withCredentials: true, // required for Clerk auth
+  baseURL: "/api", // Vite proxy handles http://localhost:3000
+  withCredentials: true, // required for Clerk auth
 });
 
 const RemoveBackground = () => {
@@ -16,6 +19,8 @@ const RemoveBackground = () => {
   const [preview, setPreview] = useState(null);
   const [processedImage, setProcessedImage] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const { getToken } = useAuth();
 
   const handleUpload = (e) => {
     const file = e.target.files[0];
@@ -31,30 +36,41 @@ const RemoveBackground = () => {
     setProcessedImage(null);
   };
 
- const handleRemoveBackground = async () => {
-  if (!image) return toast.error("Upload an image first");
+  const handleRemoveBackground = async () => {
+    if (!image) return toast.error("Upload an image first");
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const formData = new FormData();
-    formData.append("image", image);
+      const formData = new FormData();
+      formData.append("image", image);
 
-    const res = await api.post("/ai/image/remove-background", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+      // const res = await api.post("/ai/image/remove-background", formData, {
+      //   headers: { "Content-Type": "multipart/form-data" },
+      // });
 
-    if (!res.data?.success) throw new Error(res.data?.message);
+      const res = await api.post(
+        "/ai/image/remove-background",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        }
+      );
 
-    setProcessedImage(res.data.content);
-    toast.success("Background removed successfully ✨");
-  } catch (error) {
-    console.error(error);
-    toast.error(error.response?.data?.message || error.message || "Failed ❌");
-  } finally {
-    setLoading(false);
-  }
-};  
+      if (!res.data?.success) throw new Error(res.data?.message);
+
+      setProcessedImage(res.data.content);
+      toast.success("Background removed successfully ✨");
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || error.message || "Failed ❌");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const downloadImage = async () => {
     if (!processedImage) return;
