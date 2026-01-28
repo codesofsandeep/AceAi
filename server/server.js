@@ -14,7 +14,14 @@ const app = express();
 connectCloudinary();
 
 // Middleware
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+// app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+
+app.use(cors({
+  origin: ["https://ace-jhoxvm8lm-sandeeprajputs-projects.vercel.app"],
+  credentials: true
+}));
+
+
 app.use(express.json());
 app.use(clerkMiddleware());
 
