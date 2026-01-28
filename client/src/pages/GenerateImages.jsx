@@ -50,7 +50,7 @@ const GenerateImages = () => {
       const token = await getToken();
 
       const { data } = await api.post(
-        "/ai/generate-image",
+        "/generate-image",
         {
           prompt,
           style,
