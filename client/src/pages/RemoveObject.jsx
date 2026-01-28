@@ -374,7 +374,7 @@ import React, { useState } from "react";
 import { Upload, Eraser, Download, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
-
+import api from "../lib/api";
 const RemoveObject = () => {
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -390,36 +390,79 @@ const RemoveObject = () => {
     setProcessedImage(null);
   };
 
+  // const handleRemove = async () => {
+  //   if (!image || !object.trim()) {
+  //     toast.error("Upload an image and describe the object to remove");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+
+  //     const formData = new FormData();
+  //     formData.append("image", image);
+  //     formData.append("object", object);
+
+  //     // Get token from wherever you store it (localStorage / context)
+  //     const token = localStorage.getItem("token");
+
+  //     const res = await axios.post(
+  //       "/api/ai/image/remove-object",
+  //       formData,
+  //       {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     if (!res.data.success) throw new Error(res.data.message);
+
+  //     setProcessedImage(res.data.content);
+  //     toast.success("Object removed successfully!");
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error(error.response?.data?.message || error.message || "Failed ❌");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+
+  // inside your remove function
   const handleRemove = async () => {
     if (!image || !object.trim()) {
       toast.error("Upload an image and describe the object to remove");
       return;
     }
 
+
     try {
       setLoading(true);
+
 
       const formData = new FormData();
       formData.append("image", image);
       formData.append("object", object);
 
-      // Get token from wherever you store it (localStorage / context)
-      const token = localStorage.getItem("token");
 
-      const res = await axios.post(
-        "/api/ai/image/remove-object",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const token = "your-auth-token-if-needed"; // optional
+
+
+      const res = await api.post("/ai/image/remove-object", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`, // optional
+        },
+      });
+
 
       if (!res.data.success) throw new Error(res.data.message);
 
-      setProcessedImage(res.data.content);
+
+      setProcessedImage(res.data.content); // your processed image URL
       toast.success("Object removed successfully!");
     } catch (error) {
       console.error(error);
@@ -428,7 +471,6 @@ const RemoveObject = () => {
       setLoading(false);
     }
   };
-
   const downloadImage = () => {
     if (!processedImage) return;
     const link = document.createElement("a");
