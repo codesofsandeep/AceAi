@@ -48,9 +48,8 @@ const GenerateImages = () => {
 
       const token = await getToken();
 
-
-      const { data } = await axios.post(
-        "/api/ai/generate-image",
+      const { data } = await api.post(
+        "/ai/generate-image",
         {
           prompt,
           style,
@@ -60,7 +59,6 @@ const GenerateImages = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          withCredentials: true,
         }
       );
 
