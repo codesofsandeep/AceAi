@@ -40,8 +40,15 @@ const BlogTitle = () => {
 
       const { data } = await axios.post(
         "/api/ai/generate-blog-title",
-        { prompt, length: length.toLowerCase() },
-        { headers: { Authorization: `Bearer ${await getToken()}` } }
+        {
+          prompt: topic,
+          tone,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       if (data.success) {

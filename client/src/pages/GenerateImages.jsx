@@ -29,7 +29,7 @@ const GenerateImages = () => {
     setLoading(true);
 
     try {
-      const token = await getToken();
+      // const token = await getToken();
       // const { data } = await axios.post(
       //   "/api/ai/generate-image",
       //   { prompt, style, ratio, plan: "premium" }, // send user's plan
@@ -40,10 +40,27 @@ const GenerateImages = () => {
       //   }
       // );
 
+      // const { data } = await axios.post(
+      //   "/api/ai/generate-image",
+      //   { prompt, length: length.toLowerCase() },
+      //   { headers: { Authorization: `Bearer ${await getToken()}` } }
+      // );
+
+      const token = await getToken();
+
+
       const { data } = await axios.post(
         "/api/ai/generate-image",
-        { prompt, length: length.toLowerCase() },
-        { headers: { Authorization: `Bearer ${await getToken()}` } }
+        {
+          prompt,
+          style,
+          ratio,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       if (data.success) {
