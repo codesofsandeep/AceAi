@@ -6,6 +6,7 @@ import { Sparkles, Wand2, Download, Copy, Check } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
+import api from "../lib/api";
 
 // axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
