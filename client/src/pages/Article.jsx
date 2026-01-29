@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
+// axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const Article = () => {
   const [topic, setTopic] = useState("");
@@ -57,6 +57,51 @@ const Article = () => {
   //     }, 1200);
   //   };
 
+  // const handleGenerate = async () => {
+  //   if (!topic) {
+  //     toast.error("Please enter an article topic");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+
+  //     const prompt = `Write a ${tone.toLowerCase()} article about "${topic}"`;
+
+  //     // const { data } = await axios.post(
+  //     //   "/api/ai/generate-article",
+  //     //   {
+  //     //     prompt,
+  //     //     length: length.toLowerCase(),
+  //     //   },
+  //     //   {
+  //     //     headers: {
+  //     //       Authorization: `Bearer ${await getToken()}`,
+  //     //     },
+  //     //   }
+  //     // );
+
+  //     const { data } = await axios.post(
+  //       "/api/ai/generate-article",
+  //       { prompt, length: length.toLowerCase() },
+  //       { headers: { Authorization: `Bearer ${await getToken()}` } }
+  //     );
+
+  //     if (data.success) {
+  //       setArticle(data.content);
+  //       toast.success("Article generated successfully!");
+  //     } else {
+  //       toast.error(data.message || "Failed to generate article");
+  //     }
+
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Server error. Try again.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleGenerate = async () => {
     if (!topic) {
       toast.error("Please enter an article topic");
@@ -66,25 +111,16 @@ const Article = () => {
     try {
       setLoading(true);
 
+      const token = await getToken();
+
       const prompt = `Write a ${tone.toLowerCase()} article about "${topic}"`;
 
-      // const { data } = await axios.post(
-      //   "/api/ai/generate-article",
-      //   {
-      //     prompt,
-      //     length: length.toLowerCase(),
-      //   },
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${await getToken()}`,
-      //     },
-      //   }
-      // );
-
-      const { data } = await axios.post(
-        "/api/ai/generate-article",
-        { prompt, length: length.toLowerCase() },
-        { headers: { Authorization: `Bearer ${await getToken()}` } }
+      const { data } = await generateArticle(
+        {
+          prompt,
+          length: length.toLowerCase(),
+        },
+        token
       );
 
       if (data.success) {
@@ -93,7 +129,6 @@ const Article = () => {
       } else {
         toast.error(data.message || "Failed to generate article");
       }
-
     } catch (error) {
       console.error(error);
       toast.error("Server error. Try again.");
@@ -101,34 +136,6 @@ const Article = () => {
       setLoading(false);
     }
   };
-
-  // const handleCopy = async (e) => {
-  //   e.preventDeafault();
-  //   try{
-  //     setLoading(true);
-  //     const prompt = `Write an article about ${input} in ${length.text}`;
-
-  //     const {data} = await axios.post('/api/ai/generate-article' , {prompt, length} , {
-  //       headers: {Authorization: `Bearer ${await getToken()}`}
-  //     })
-
-  //     if (data.success){
-  //       setCon
-  //     }
-  //   } catch(error){
-
-  //   }
-  //   // if (!article) {
-  //   //   toast.error("Nothing to copy");
-  //   //   return;
-  //   // }
-
-  //   await navigator.clipboard.writeText(article);
-  //   setCopied(true);
-  //   toast.success("Article copied to clipboard!");
-
-  //   setTimeout(() => setCopied(false), 2000);
-  // };
 
   const handleCopy = async () => {
     if (!article) {
