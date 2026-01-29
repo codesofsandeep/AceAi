@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { Sparkles, Wand2, Download, Copy, Check } from "lucide-react";
 import toast from "react-hot-toast";
 // import axios from "axios";
-import { generateImage } from "../ai.service";
+import { generateImage } from "../services/ai.service";
 import { useAuth } from "@clerk/clerk-react";
 import api from "../lib/api";
 
