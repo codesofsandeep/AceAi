@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Sparkles, Copy, Check, Bot } from "lucide-react";
 import toast from "react-hot-toast";
-import axios from 'axios';
+// import axios from 'axios';
+import { generateArticle } from "../services/ai.service";
 import { useAuth } from "@clerk/clerk-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
