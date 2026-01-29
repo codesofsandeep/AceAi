@@ -4,7 +4,8 @@
 import React, { useState } from "react";
 import { Sparkles, Wand2, Download, Copy, Check } from "lucide-react";
 import toast from "react-hot-toast";
-import axios from "axios";
+// import axios from "axios";
+import { generateImage } from "../ai.service";
 import { useAuth } from "@clerk/clerk-react";
 import api from "../lib/api";
 
@@ -21,51 +22,85 @@ const GenerateImages = () => {
   const { getToken } = useAuth();
 
   // ===== Generate Images =====
+  // const generateImages = async () => {
+  //   if (!prompt.trim()) {
+  //     toast.error("Please enter an image prompt");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+
+  //   try {
+  //     // const token = await getToken();
+  //     // const { data } = await axios.post(
+  //     //   "/api/ai/generate-image",
+  //     //   { prompt, style, ratio, plan: "premium" }, // send user's plan
+  //     //   {
+  //     //     headers: {
+  //     //       Authorization: `Bearer ${token}`,
+  //     //     },
+  //     //   }
+  //     // );
+
+  //     // const { data } = await axios.post(
+  //     //   "/api/ai/generate-image",
+  //     //   { prompt, length: length.toLowerCase() },
+  //     //   { headers: { Authorization: `Bearer ${await getToken()}` } }
+  //     // );
+
+  //     const token = await getToken();
+
+  //     const { data } = await api.post(
+  //       "/generate-image",
+  //       {
+  //         prompt,
+  //         style,
+  //         ratio,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     if (data.success) {
+  //       setImages(data.content);
+  //       // Clipdrop returns 1 image at a time
+  //       toast.success("Image generated ✨");
+  //     } else {
+  //       toast.error(data.message || "Image generation failed");
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Image generation failed, try again!");
+  //   }
+
+  //   setLoading(false);
+  // };
+
   const generateImages = async () => {
     if (!prompt.trim()) {
       toast.error("Please enter an image prompt");
       return;
     }
 
-    setLoading(true);
-
     try {
-      // const token = await getToken();
-      // const { data } = await axios.post(
-      //   "/api/ai/generate-image",
-      //   { prompt, style, ratio, plan: "premium" }, // send user's plan
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //   }
-      // );
-
-      // const { data } = await axios.post(
-      //   "/api/ai/generate-image",
-      //   { prompt, length: length.toLowerCase() },
-      //   { headers: { Authorization: `Bearer ${await getToken()}` } }
-      // );
+      setLoading(true);
 
       const token = await getToken();
 
-      const { data } = await api.post(
-        "/generate-image",
+      const { data } = await generateImage(
         {
           prompt,
           style,
           ratio,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        token
       );
 
       if (data.success) {
         setImages(data.content);
-        // Clipdrop returns 1 image at a time
         toast.success("Image generated ✨");
       } else {
         toast.error(data.message || "Image generation failed");
@@ -73,9 +108,9 @@ const GenerateImages = () => {
     } catch (error) {
       console.error(error);
       toast.error("Image generation failed, try again!");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   // ===== Copy Prompt =====

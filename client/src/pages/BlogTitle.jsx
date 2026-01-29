@@ -4,10 +4,12 @@
 import React, { useState } from "react";
 import { Sparkles, Copy, Check } from "lucide-react";
 import toast from "react-hot-toast";
-import axios from "axios";
+// import axios from "axios";
+// import { generateArticle } from "../services/ai.service";
 import { useAuth } from "@clerk/clerk-react";
+import { generateBlogTitle } from "../services/ai.service";
 
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
+// axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const BlogTitle = () => {
   const [topic, setTopic] = useState("");
@@ -18,54 +20,92 @@ const BlogTitle = () => {
 
   const { getToken } = useAuth();
 
-  const generateTitles = async () => {
-    if (!topic.trim()) {
-      toast.error("Please enter a blog topic");
-      return;
-    }
 
+  // const generateTitles = async () => {
+  //   if (!topic.trim()) {
+  //     toast.error("Please enter a blog topic");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+
+  //   try {
+  //     const token = await getToken();
+  //     // const { data } = await axios.post(
+  //     //   "/api/ai/generate-blog-title",
+  //     //   { prompt: topic, tone },
+  //     //   {
+  //     //     headers: {
+  //     //       Authorization: `Bearer ${token}`,
+  //     //     },
+  //     //   }
+  //     // );
+
+  //     const { data } = await axios.post(
+  //       "/api/ai/generate-blog-title",
+  //       {
+  //         prompt: topic,
+  //         tone,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     if (data.success) {
+  //       // The API can return multiple titles separated by newlines
+  //       const generatedTitles = data.content.split("\n").filter(Boolean);
+  //       setTitles(generatedTitles);
+  //       toast.success("Blog titles generated ✨");
+  //     } else {
+  //       toast.error(data.message || "Failed to generate titles");
+  //     }
+  //   } catch (error) {
+  //     console.error("❌ Blog Title Generation Error:", error);
+  //     toast.error("Something went wrong. Try again!");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+const generateTitles = async () => {
+  if (!topic.trim()) {
+    toast.error("Please enter a blog topic");
+    return;
+  }
+
+  try {
     setLoading(true);
 
-    try {
-      const token = await getToken();
-      // const { data } = await axios.post(
-      //   "/api/ai/generate-blog-title",
-      //   { prompt: topic, tone },
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //   }
-      // );
+    const token = await getToken();
 
-      const { data } = await axios.post(
-        "/api/ai/generate-blog-title",
-        {
-          prompt: topic,
-          tone,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    const prompt = `Generate 5 catchy, SEO-friendly ${tone.toLowerCase()} blog titles for the topic: "${topic}"`;
 
-      if (data.success) {
-        // The API can return multiple titles separated by newlines
-        const generatedTitles = data.content.split("\n").filter(Boolean);
-        setTitles(generatedTitles);
-        toast.success("Blog titles generated ✨");
-      } else {
-        toast.error(data.message || "Failed to generate titles");
-      }
-    } catch (error) {
-      console.error("❌ Blog Title Generation Error:", error);
-      toast.error("Something went wrong. Try again!");
-    } finally {
-      setLoading(false);
+    const { data } = await generateBlogTitle(
+      { prompt, tone },
+      token
+    );
+
+    if (data.success) {
+      const generatedTitles = data.content
+        .split("\n")
+        .map(t => t.trim())
+        .filter(Boolean);
+
+      setTitles(generatedTitles);
+      toast.success("Blog titles generated ✨");
+    } else {
+      toast.error(data.message || "Failed to generate titles");
     }
-  };
+  } catch (error) {
+    console.error(error);
+    toast.error("Server error. Try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const copyTitle = async (text, index) => {
     await navigator.clipboard.writeText(text);
