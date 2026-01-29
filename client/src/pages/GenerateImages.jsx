@@ -79,39 +79,50 @@ const GenerateImages = () => {
   //   setLoading(false);
   // };
 
-  const generateImages = async () => {
-    if (!prompt.trim()) {
-      toast.error("Please enter an image prompt");
-      return;
-    }
+  // const generateImages = async () => {
+  //   if (!prompt.trim()) {
+  //     toast.error("Please enter an image prompt");
+  //     return;
+  //   }
 
-    try {
-      setLoading(true);
+  //   try {
+  //     setLoading(true);
 
-      const token = await getToken();
+  //     const token = await getToken();
 
-      const { data } = await generateImage(
-        {
-          prompt,
-          style,
-          ratio,
-        },
-        token
-      );
+  //     const { data } = await generateImage(
+  //       {
+  //         prompt,
+  //         style,
+  //         ratio,
+  //       },
+  //       token
+  //     );
 
-      if (data.success) {
-        setImages(data.content);
-        toast.success("Image generated ✨");
-      } else {
-        toast.error(data.message || "Image generation failed");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Image generation failed, try again!");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     if (data.success) {
+  //       setImages(data.content);
+  //       toast.success("Image generated ✨");
+  //     } else {
+  //       toast.error(data.message || "Image generation failed");
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Image generation failed, try again!");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const handleGenerate = async () => {
+const res = await generateImage({
+prompt,
+style,
+ratio,
+});
+
+
+console.log(res.data);
+};
 
   // ===== Copy Prompt =====
   const copyPrompt = async () => {

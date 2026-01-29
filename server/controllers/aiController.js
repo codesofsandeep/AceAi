@@ -288,72 +288,94 @@ export const generateBlogTitle = async (req, res) => {
 //     }
 // };
 
+// export const generateImage = async (req, res) => {
+//     try {
+//         const { userId } = req.auth();
+//         const { prompt, publish = false, plan } = req.body;
+
+//         if (plan !== "premium") {
+//             return res.status(403).json({
+//                 success: false,
+//                 message: "This feature is only available for premium subscriptions.",
+//             });
+//         }
+
+//         if (!prompt) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Prompt is required",
+//             });
+//         }
+
+//         const images = [];
+
+//         // 🔁 Generate 5 images
+//         for (let i = 0; i < 5; i++) {
+//             const formData = new FormData();
+//             formData.append("prompt", prompt);
+
+//             const { data } = await axios.post(
+//                 "https://clipdrop-api.co/text-to-image/v1",
+//                 formData,
+//                 {
+//                     headers: {
+//                         "x-api-key": process.env.CLIPDROP_API_KEY,
+//                     },
+//                     responseType: "arraybuffer",
+//                 }
+//             );
+
+//             const base64Image = `data:image/png;base64,${Buffer.from(
+//                 data
+//             ).toString("base64")}`;
+
+//             const uploadResult = await cloudinary.uploader.upload(base64Image, {
+//                 folder: "aceai/images",
+//             });
+
+//             images.push(uploadResult.secure_url);
+
+//             await Creation.create({
+//                 userId,
+//                 prompt,
+//                 content: uploadResult.secure_url,
+//                 type: "image",
+//                 publish,
+//             });
+//         }
+
+//         res.status(200).json({
+//             success: true,
+//             content: images, // ✅ ARRAY OF 5 IMAGES
+//         });
+//     } catch (error) {
+//         console.error("❌ Image AI Error:", error.response?.data || error);
+//         res.status(500).json({
+//             success: false,
+//             message: "Image generation failed",
+//         });
+//     }
+// };
+
 export const generateImage = async (req, res) => {
     try {
-        const { userId } = req.auth();
-        const { prompt, publish = false, plan } = req.body;
+        const { prompt, style, ratio } = req.body;
 
-        if (plan !== "premium") {
+        // Access everywhere
+        const { userId, plan, free_usage } = req;
+
+        if (plan === "free" && free_usage <= 0) {
             return res.status(403).json({
                 success: false,
-                message: "This feature is only available for premium subscriptions.",
+                message: "Free limit exceeded",
             });
         }
 
-        if (!prompt) {
-            return res.status(400).json({
-                success: false,
-                message: "Prompt is required",
-            });
-        }
+        // generate image logic...
 
-        const images = [];
-
-        // 🔁 Generate 5 images
-        for (let i = 0; i < 5; i++) {
-            const formData = new FormData();
-            formData.append("prompt", prompt);
-
-            const { data } = await axios.post(
-                "https://clipdrop-api.co/text-to-image/v1",
-                formData,
-                {
-                    headers: {
-                        "x-api-key": process.env.CLIPDROP_API_KEY,
-                    },
-                    responseType: "arraybuffer",
-                }
-            );
-
-            const base64Image = `data:image/png;base64,${Buffer.from(
-                data
-            ).toString("base64")}`;
-
-            const uploadResult = await cloudinary.uploader.upload(base64Image, {
-                folder: "aceai/images",
-            });
-
-            images.push(uploadResult.secure_url);
-
-            await Creation.create({
-                userId,
-                prompt,
-                content: uploadResult.secure_url,
-                type: "image",
-                publish,
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            content: images, // ✅ ARRAY OF 5 IMAGES
-        });
+        res.json({ success: true, imageUrl });
     } catch (error) {
-        console.error("❌ Image AI Error:", error.response?.data || error);
-        res.status(500).json({
-            success: false,
-            message: "Image generation failed",
-        });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -583,37 +605,37 @@ export const removeImageObject = async (req, res) => {
 
 
 export const reviewResume = async (req, res) => {
-  try {
-    const auth = req.auth?.();
-    const userId = auth?.userId || null;
-    const resume = req.file;
+    try {
+        const auth = req.auth?.();
+        const userId = auth?.userId || null;
+        const resume = req.file;
 
-    if (!resume) {
-      return res.status(400).json({
-        success: false,
-        message: "Resume file is required",
-      });
-    }
+        if (!resume) {
+            return res.status(400).json({
+                success: false,
+                message: "Resume file is required",
+            });
+        }
 
-    if (resume.size > 5 * 1024 * 1024) {
-      return res.status(400).json({
-        success: false,
-        message: "Resume file exceeds 5MB limit",
-      });
-    }
+        if (resume.size > 5 * 1024 * 1024) {
+            return res.status(400).json({
+                success: false,
+                message: "Resume file exceeds 5MB limit",
+            });
+        }
 
-    // ✅ PDF PARSE (FIXED)
-    const buffer = fs.readFileSync(resume.path);
-    const pdfData = await pdfParse(buffer);
+        // ✅ PDF PARSE (FIXED)
+        const buffer = fs.readFileSync(resume.path);
+        const pdfData = await pdfParse(buffer);
 
-    if (!pdfData.text || !pdfData.text.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: "Unable to extract text from resume",
-      });
-    }
+        if (!pdfData.text || !pdfData.text.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Unable to extract text from resume",
+            });
+        }
 
-    const prompt = `
+        const prompt = `
 Review the following resume and provide:
 1. Strengths
 2. Weaknesses
@@ -625,34 +647,34 @@ Resume Content:
 ${pdfData.text}
 `;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: "You are an expert resume reviewer and ATS specialist." },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 600,
-    });
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [
+                { role: "system", content: "You are an expert resume reviewer and ATS specialist." },
+                { role: "user", content: prompt },
+            ],
+            temperature: 0.7,
+            max_tokens: 600,
+        });
 
-    const content = response.choices[0].message.content;
+        const content = response.choices[0].message.content;
 
-    if (userId) {
-      await Creation.create({
-        userId,
-        prompt: "Resume Review",
-        content,
-        type: "resume-review",
-      });
+        if (userId) {
+            await Creation.create({
+                userId,
+                prompt: "Resume Review",
+                content,
+                type: "resume-review",
+            });
+        }
+
+        res.status(200).json({ success: true, content });
+
+    } catch (error) {
+        console.error("❌ Resume Review Error:", error);
+        res.status(500).json({
+            success: false,
+            message: error.message || "Resume review failed",
+        });
     }
-
-    res.status(200).json({ success: true, content });
-
-  } catch (error) {
-    console.error("❌ Resume Review Error:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Resume review failed",
-    });
-  }
 };
